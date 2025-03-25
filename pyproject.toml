@@ -1,0 +1,14 @@
+[tool.poetry]
+name = "udacity_capstone"
+version = "1.0"
+description = "capstone project for udacity data science nanodegree"
+authors = ["Patrick Christoph"]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pandas = "^2.2.3"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
