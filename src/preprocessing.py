@@ -382,7 +382,6 @@ def preprocess_data(df: pd.DataFrame, scaler: StandardScaler = None) -> Tuple[pd
         feature_config = json.load(f)
 
     df = remove_features(df, feature_config, "irrelevant")
-    df = remove_features(df, feature_config, "uncertain")
 
     df = convert_unknown_values_to_null(df, meta)
     df = convert_invalid_values_to_null(df, meta)
@@ -394,6 +393,7 @@ def preprocess_data(df: pd.DataFrame, scaler: StandardScaler = None) -> Tuple[pd
     df = split_international_cameo(df)
 
     df = remove_features(df, feature_config, "redundant")
+    df = remove_features(df, feature_config, "uncertain")
 
     df = encode_binary_features(df, feature_config["binary"])
     df, dummy_variables = encode_categorical_features(df, feature_config["categorical"])
