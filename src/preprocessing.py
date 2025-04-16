@@ -7,6 +7,12 @@ from sklearn.preprocessing import StandardScaler
 
 
 def load_meta_data(raw_file_path: str) -> pd.DataFrame:
+    """
+    Load and process provided meta information for the datasets.
+
+    :param raw_file_path: Path to the raw metadata file.
+    :return: Processed metadata
+    """
     meta = pd.read_excel(raw_file_path, header=1)
     meta.columns = meta.columns.str.lower()
     meta.drop(columns="unnamed: 0", inplace=True)
@@ -23,6 +29,12 @@ def load_meta_data(raw_file_path: str) -> pd.DataFrame:
 
 
 def rectify_meta_attributes(meta: pd.DataFrame) -> pd.DataFrame:
+    """
+    Align the attribute names from the metadata to the other datasets.
+
+    :param meta: Metadata with attributes to be rectified.
+    :return: Rectified metadata
+    """
     meta["attribute"] = meta["attribute"].replace(r"_rz$", "", regex=True)
 
     attribute_renaming = {
@@ -38,6 +50,13 @@ def rectify_meta_attributes(meta: pd.DataFrame) -> pd.DataFrame:
 
 
 def convert_unknown_values_to_null(df: pd.DataFrame, meta: pd.DataFrame) -> pd.DataFrame:
+    """
+    Replace unknown values with null values either based on the metadata or other column-specific rules.
+
+    :param df: Dataset with unknown values that are not null.
+    :param meta: Metadata with information about attribute specific unknown values.
+    :return: Dataset with unknown values replaced by null values
+    """
     cameo_columns = ["cameo_intl_2015", "cameo_deug_2015", "cameo_deu_2015"]
     df[cameo_columns] = df[cameo_columns].replace(["X", "XX"], np.nan)
     df[cameo_columns[:-1]] = df[cameo_columns[:-1]].astype(float)
@@ -52,6 +71,16 @@ def convert_unknown_values_to_null(df: pd.DataFrame, meta: pd.DataFrame) -> pd.D
 
 
 def identify_invalid_oor_values(meta: pd.DataFrame, df: pd.DataFrame, log: bool = False) -> pd.DataFrame:
+    """
+    Identify out-of-range (oor) values in the dataset based on metadata.
+
+    Compares actual values in the dataset against expected values defined in the metadata.
+
+    :param meta: Metadata with valid attribute values.
+    :param df: Dataset to check for invalid values.
+    :param log: Whether to print details of each out-of-range value found.
+    :return: Attributes and their out-of-range values.
+    """
     categorical_values = meta[meta["value"] != "…"][["attribute", "value"]]
     categorical_values = categorical_values.rename(columns={"value": "meta_value"})
 
@@ -78,6 +107,15 @@ def identify_invalid_oor_values(meta: pd.DataFrame, df: pd.DataFrame, log: bool 
 
 
 def convert_invalid_values_to_null(df: pd.DataFrame, meta: pd.DataFrame) -> pd.DataFrame:
+    """
+    Replace invalid values in the dataset with null values.
+
+    Handles attribute specific cases and uses metadata to identify values that are out of range.
+
+    :param df: dataset with invalid values.
+    :param meta: Metadata used to detect out-of-range values.
+    :return: Cleaned dataset with invalid values replaced by null values.
+    """
     df.loc[df["geburtsjahr"] == 0, "geburtsjahr"] = np.nan
     df.loc[df["anz_personen"] == 0, "anz_personen"] = np.nan
 
@@ -90,11 +128,30 @@ def convert_invalid_values_to_null(df: pd.DataFrame, meta: pd.DataFrame) -> pd.D
 
 
 def remove_records_with_insufficient_data(df: pd.DataFrame, max_missing_values: int = 120) -> pd.DataFrame:
+    """
+    Remove records with too many missing feature values.
+
+    Rows with missing value counts greater than or equal to the specified threshold are dropped.
+
+    :param df: Dataset with records that have too many missing values.
+    :param max_missing_values: Maximum allowed number of missing values per record.
+    :return: Dataset without rows that have too many missing feature values.
+    """
     df =df[~(df.isnull().sum(axis=1) >= max_missing_values)]
+
     return df
 
 
 def remove_features_with_high_missing_values_ratio(df: pd.DataFrame, max_ratio: float = .2) -> pd.DataFrame:
+    """
+    Remove features (columns) with a high ratio of missing values.
+
+    Columns with a missing value ratio greater than or equal to the specified threshold are dropped.
+
+    :param df: Dataset with features that have too many missing values.
+    :param max_ratio: Maximum allowed ratio of missing values per feature.
+    :return: Dataset with high-missing-value columns removed.
+    """
     missing_ratios = pd.Series(df.isnull().sum() / len(df))
     columns_with_high_ratio = list(missing_ratios[missing_ratios >= max_ratio].index)
 
@@ -106,6 +163,12 @@ def remove_features_with_high_missing_values_ratio(df: pd.DataFrame, max_ratio: 
 
 
 def impute_features_with_median_or_mode(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Impute missing values using the median for numeric features and mode for categorical features.
+
+    :param df: Dataset with missing values.
+    :return: Dataset with missing values imputed.
+    """
     columns_with_missing_values = df.columns[df.isnull().any()]
 
     for column in columns_with_missing_values:
@@ -125,6 +188,13 @@ def impute_features_with_median_or_mode(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def impute_or_remove_features_with_missing_values(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Applies feature-specific imputation rules, removes features with high missing ratios,
+    and fills remaining missing values with median or mode.
+
+    :param df: Dataset with missing values.
+    :return: Cleaned Dataset with missing values handled.
+    """
     median_ager_type = df["ager_typ"].median()
     df["ager_typ"] = [median_ager_type if pd.isnull(t) and birth_year < 1960 else t
                       for t, birth_year in zip(df["ager_typ"], df["geburtsjahr"])]
@@ -143,7 +213,13 @@ def impute_or_remove_features_with_missing_values(df: pd.DataFrame) -> pd.DataFr
 
 
 def split_formative_youth_years(df: pd.DataFrame, meta: pd.DataFrame) -> pd.DataFrame:
+    """
+    Extracts the decade and cultural orientation out of the formative youth years feature 'praegende_jugendjahre'.
 
+    :param df: Dataset with formative youth years.
+    :param meta: Metadata with meanings for each formative youth year value.
+    :returns: Dataset with 'youth_decade' and 'youth_orientation' features.
+    """
     youth_mappings = {
         "decade": {},
         "orientation": {},
@@ -171,6 +247,12 @@ def split_formative_youth_years(df: pd.DataFrame, meta: pd.DataFrame) -> pd.Data
 
 
 def split_international_cameo(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Extracts wealth and life phase out of the international cameo classification feature.
+
+    :param df: Dataset with international cameo classification.
+    :return: Dataset with 'cameo_wealth' and 'cameo_life_phase' features.
+    """
     df["cameo_wealth"] = [int(str(v)[0]) if v != -1 and pd.notnull(v) else v for v in df["cameo_intl_2015"]]
     df["cameo_life_phase"] = [int(str(v)[1]) if v != -1 and pd.notnull(v) else v for v in df["cameo_intl_2015"]]
 
@@ -180,14 +262,30 @@ def split_international_cameo(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def remove_features(df: pd.DataFrame, feature_configs: Dict[str, List[str]], removal_type: str) -> pd.DataFrame:
+    """
+    Removes features from the dataset that were defined in a separate config.
+
+    :param df: Dataset with features to remove.
+    :param feature_configs: Config with specified feature lists.
+    :param removal_type: reason for the removal which also specifies the corresponding list from the config
+    :return: Dataset with defined features removed.
+    """
     features = feature_configs[removal_type]
     df = df.drop(columns=features)
+
     print(f"Removed {len(features)} {removal_type} features: {", ".join(features)}")
 
     return df
 
 
 def encode_binary_features(df: pd.DataFrame, binary_features: List[str]) -> pd.DataFrame:
+    """
+    Encodes specified binary features in the dataset to numerical (0/1) representation.
+
+    :param df: Dataset containing the binary features to encode.
+    :param binary_features: Column names in the dataset that are considered binary.
+    :returns: Dataset with the specified binary features encoded numerically.
+    """
     for feature in binary_features:
         unique_values = sorted(df[feature].unique())
         if len(unique_values) == 1:
@@ -203,6 +301,14 @@ def encode_binary_features(df: pd.DataFrame, binary_features: List[str]) -> pd.D
 
 
 def encode_categorical_features(df: pd.DataFrame, categorical_features: List[str]) -> Tuple[pd.DataFrame, List[str]]:
+    """
+    Encodes specified categorical features in the dataset using one-hot encoding.
+
+    :param df: Dataset containing the categorical features to encode.
+    :param categorical_features: Column names in the dataset that are considered categorical.
+    :returns: - Dataset with the original categorical features replaced by the generated dummy variables.
+              - Names of the created dummy variables.
+    """
     for feature in categorical_features:
         if pd.api.types.is_numeric_dtype(df[feature]):
             df[feature] = df[feature].astype(int)
@@ -229,7 +335,20 @@ def encode_categorical_features(df: pd.DataFrame, categorical_features: List[str
 def scale_numeric_features(
         df: pd.DataFrame, numeric_features: List[str], scaler: Optional[StandardScaler] = None
 ) -> Tuple[pd.DataFrame, StandardScaler]:
+    """
+    Scales specified numeric features in the dataset using StandardScaler.
 
+    If a scaler is provided, it is used to transform the data. If no scaler is
+    provided, a new StandardScaler is fitted to the numeric features and then used
+    to transform them. The original numeric columns are dropped from the dataset
+    and replaced with the scaled versions.
+
+    :param df: Dataset containing the numeric features to scale.
+    :param numeric_features: Column names in the dataset that are numeric.
+    :param scaler: An optional pre-fitted StandardScaler.
+    :returns: - Dataset with the original numeric features replaced by the scaled versions.
+              - StandardScaler used for scaling (either the provided one or a newly fitted one).
+    """
     if scaler is None:
         scaler = StandardScaler()
         scaler.fit(df[numeric_features])
@@ -247,7 +366,15 @@ def scale_numeric_features(
 
 
 def preprocess_data(df: pd.DataFrame, scaler: StandardScaler = None) -> Tuple[pd.DataFrame, StandardScaler]:
+    """
+    Preprocesses the dataset through a series of data cleaning, feature engineering,
+    encoding, and scaling steps.
 
+    :param df: Raw input dataset to be preprocessed.
+    :param scaler: An optional pre-fitted StandardScaler for scaling numeric features.
+    :returns: - Preprocessed dataset.
+              - StandardScaler used for scaling (either the provided one or a newly fitted one).
+    """
     meta = load_meta_data(raw_file_path="../data/meta/dias_values.xlsx")
     meta = rectify_meta_attributes(meta)
 
