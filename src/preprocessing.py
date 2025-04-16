@@ -1,5 +1,5 @@
 import json
-from typing import List, Optional, Tuple, Set
+from typing import List, Optional, Tuple, Set, Dict
 
 import numpy as np
 import pandas as pd
@@ -37,18 +37,11 @@ def rectify_meta_attributes(meta: pd.DataFrame) -> pd.DataFrame:
     return meta
 
 
-def prepare_cameo_classifications(df: pd.DataFrame) -> pd.DataFrame:
-    cameo_columns = df.columns[df.columns.str.startswith("cameo")]
-    df[cameo_columns] = df[cameo_columns].replace(["X", "XX"], np.nan)
-
-    for cameo_column in cameo_columns:
-        if cameo_column != "cameo_deu_2015":
-            df[cameo_column] = df[cameo_column].astype(float)
-
-    return df
-
-
 def convert_unknown_values_to_null(df: pd.DataFrame, meta: pd.DataFrame) -> pd.DataFrame:
+    cameo_columns = ["cameo_intl_2015", "cameo_deug_2015", "cameo_deu_2015"]
+    df[cameo_columns] = df[cameo_columns].replace(["X", "XX"], np.nan)
+    df[cameo_columns[:-1]] = df[cameo_columns[:-1]].astype(float)
+
     unknown_values = meta[meta["meaning"].str.contains("unknown")]
 
     for attribute, unknown_value in zip(unknown_values["attribute"], unknown_values["value"]):
@@ -101,18 +94,18 @@ def remove_records_with_insufficient_data(df: pd.DataFrame, max_missing_values: 
     return df
 
 
-def remove_attributes_with_high_missing_values_ratio(df: pd.DataFrame, max_ratio: float = .2) -> pd.DataFrame:
+def remove_features_with_high_missing_values_ratio(df: pd.DataFrame, max_ratio: float = .2) -> pd.DataFrame:
     missing_ratios = pd.Series(df.isnull().sum() / len(df))
     columns_with_high_ratio = list(missing_ratios[missing_ratios >= max_ratio].index)
 
     df = df.drop(columns=columns_with_high_ratio)
-    print(f"\nRemoved {len(columns_with_high_ratio)} attributes due to high missing ratio:"
+    print(f"\nRemoved {len(columns_with_high_ratio)} features due to high missing ratio:"
           f"\n{", ".join(columns_with_high_ratio)}")
 
     return df
 
 
-def impute_attributes_with_median_or_mode(df: pd.DataFrame) -> pd.DataFrame:
+def impute_features_with_median_or_mode(df: pd.DataFrame) -> pd.DataFrame:
     columns_with_missing_values = df.columns[df.isnull().any()]
 
     for column in columns_with_missing_values:
@@ -125,13 +118,13 @@ def impute_attributes_with_median_or_mode(df: pd.DataFrame) -> pd.DataFrame:
 
         df[column] = df[column].fillna(fill_value)
 
-    print(f"\nReplaced missing values in {len(columns_with_missing_values)} attributes:"
+    print(f"\nReplaced missing values in {len(columns_with_missing_values)} features:"
           f"\n{", ".join(columns_with_missing_values)}")
 
     return df
 
 
-def impute_or_remove_attributes_with_missing_values(df: pd.DataFrame) -> pd.DataFrame:
+def impute_or_remove_features_with_missing_values(df: pd.DataFrame) -> pd.DataFrame:
     median_ager_type = df["ager_typ"].median()
     df["ager_typ"] = [median_ager_type if pd.isnull(t) and birth_year < 1960 else t
                       for t, birth_year in zip(df["ager_typ"], df["geburtsjahr"])]
@@ -142,9 +135,9 @@ def impute_or_remove_attributes_with_missing_values(df: pd.DataFrame) -> pd.Data
     for child_age_column in ["alter_kind1", "alter_kind2"]:
         df[child_age_column] = df[child_age_column].fillna(0)
 
-    df = remove_attributes_with_high_missing_values_ratio(df)
+    df = remove_features_with_high_missing_values_ratio(df)
 
-    df = impute_attributes_with_median_or_mode(df)
+    df = impute_features_with_median_or_mode(df)
 
     return df
 
@@ -186,9 +179,10 @@ def split_international_cameo(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def remove_features(df: pd.DataFrame, features: List[str]) -> pd.DataFrame:
+def remove_features(df: pd.DataFrame, feature_configs: Dict[str, List[str]], removal_type: str) -> pd.DataFrame:
+    features = feature_configs[removal_type]
     df = df.drop(columns=features)
-    print(f"Removed {len(features)} features: {", ".join(features)}")
+    print(f"Removed {len(features)} {removal_type} features: {", ".join(features)}")
 
     return df
 
@@ -260,29 +254,25 @@ def preprocess_data(df: pd.DataFrame, scaler: StandardScaler = None) -> Tuple[pd
     with open("feature_config.json", "r") as f:
         feature_config = json.load(f)
 
-    df = remove_features(df, feature_config["worthless"])
-
-    df = prepare_cameo_classifications(df)
+    df = remove_features(df, feature_config, "irrelevant")
+    df = remove_features(df, feature_config, "uncertain")
 
     df = convert_unknown_values_to_null(df, meta)
     df = convert_invalid_values_to_null(df, meta)
 
     df = remove_records_with_insufficient_data(df)
-    df = impute_or_remove_attributes_with_missing_values(df)
+    df = impute_or_remove_features_with_missing_values(df)
 
     df = split_formative_youth_years(df, meta)
     df = split_international_cameo(df)
 
-    df = remove_features(df, feature_config["redundant"])
+    df = remove_features(df, feature_config, "redundant")
 
     df = encode_binary_features(df, feature_config["binary"])
     df, dummy_variables = encode_categorical_features(df, feature_config["categorical"])
 
-    df = remove_features(df, feature_config["uncertain"])
-
     non_numeric_features = set(dummy_variables) | set(feature_config["binary"])
     numeric_features = [feature for feature in df.columns if feature not in non_numeric_features]
-
     df, scaler = scale_numeric_features(df, numeric_features, scaler)
 
     return df, scaler
