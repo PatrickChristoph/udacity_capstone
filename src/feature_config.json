@@ -2,7 +2,6 @@
   "binary": [
     "anrede_kz",
     "dsl_flag",
-    "green_avantgarde",
     "hh_delta_flag",
     "konsumzelle",
     "ost_west_kz",
@@ -48,6 +47,7 @@
     "ewdichte",
     "finanz_sparer",
     "gemeindetyp",
+    "green_avantgarde",
     "kba05_gbz",
     "kba05_krsherst1",
     "kba05_krsherst2",

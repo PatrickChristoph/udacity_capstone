@@ -150,7 +150,7 @@ def remove_features_with_high_missing_values_ratio(df: pd.DataFrame, max_ratio: 
 
     :param df: Dataset with features that have too many missing values.
     :param max_ratio: Maximum allowed ratio of missing values per feature.
-    :return: Dataset with high-missing-value columns removed.
+    :return: Dataset without features over the missing ratio threshold.
     """
     missing_ratios = pd.Series(df.isnull().sum() / len(df))
     columns_with_high_ratio = list(missing_ratios[missing_ratios >= max_ratio].index)
@@ -193,7 +193,7 @@ def impute_or_remove_features_with_missing_values(df: pd.DataFrame) -> pd.DataFr
     and fills remaining missing values with median or mode.
 
     :param df: Dataset with missing values.
-    :return: Cleaned Dataset with missing values handled.
+    :return: Dataset with missing values handled.
     """
     median_ager_type = df["ager_typ"].median()
     df["ager_typ"] = [median_ager_type if pd.isnull(t) and birth_year < 1960 else t
@@ -261,19 +261,19 @@ def split_international_cameo(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-def remove_features(df: pd.DataFrame, feature_configs: Dict[str, List[str]], removal_type: str) -> pd.DataFrame:
+def remove_features(df: pd.DataFrame, feature_configs: Dict[str, List[str]], removal_types: List[str]) -> pd.DataFrame:
     """
     Removes features from the dataset that were defined in a separate config.
 
     :param df: Dataset with features to remove.
     :param feature_configs: Config with specified feature lists.
-    :param removal_type: reason for the removal which also specifies the corresponding list from the config
+    :param removal_types: reasons for the removal which also specifies the corresponding lists from the config
     :return: Dataset with defined features removed.
     """
-    features = feature_configs[removal_type]
-    df = df.drop(columns=features)
-
-    print(f"Removed {len(features)} {removal_type} features: {", ".join(features)}")
+    for removal_type in removal_types:
+        features = feature_configs[removal_type]
+        df = df.drop(columns=features)
+        print(f"\nRemoved {len(features)} {removal_type} features: {", ".join(features)}")
 
     return df
 
@@ -364,24 +364,8 @@ def scale_numeric_features(
     return df, scaler
 
 
-
-def preprocess_data(df: pd.DataFrame, scaler: StandardScaler = None) -> Tuple[pd.DataFrame, StandardScaler]:
-    """
-    Preprocesses the dataset through a series of data cleaning, feature engineering,
-    encoding, and scaling steps.
-
-    :param df: Raw input dataset to be preprocessed.
-    :param scaler: An optional pre-fitted StandardScaler for scaling numeric features.
-    :returns: - Preprocessed dataset.
-              - StandardScaler used for scaling (either the provided one or a newly fitted one).
-    """
-    meta = load_meta_data(raw_file_path="../data/meta/dias_values.xlsx")
-    meta = rectify_meta_attributes(meta)
-
-    with open("feature_config.json", "r") as f:
-        feature_config = json.load(f)
-
-    df = remove_features(df, feature_config, "irrelevant")
+def clean_data(df: pd.DataFrame, meta: pd.DataFrame, feature_config: Dict[str, List[str]]) -> pd.DataFrame:
+    df = remove_features(df, feature_config, ["irrelevant"])
 
     df = convert_unknown_values_to_null(df, meta)
     df = convert_invalid_values_to_null(df, meta)
@@ -392,14 +376,82 @@ def preprocess_data(df: pd.DataFrame, scaler: StandardScaler = None) -> Tuple[pd
     df = split_formative_youth_years(df, meta)
     df = split_international_cameo(df)
 
-    df = remove_features(df, feature_config, "redundant")
-    df = remove_features(df, feature_config, "uncertain")
+    df = remove_features(df, feature_config, ["redundant", "uncertain"])
 
+    return df
+
+
+def encode_data(df: pd.DataFrame, feature_config: Dict[str, List[str]]) -> Tuple[pd.DataFrame, List[str]]:
     df = encode_binary_features(df, feature_config["binary"])
     df, dummy_variables = encode_categorical_features(df, feature_config["categorical"])
 
-    non_numeric_features = set(dummy_variables) | set(feature_config["binary"])
-    numeric_features = [feature for feature in df.columns if feature not in non_numeric_features]
-    df, scaler = scale_numeric_features(df, numeric_features, scaler)
+    return df, dummy_variables
 
-    return df, scaler
+
+def complete_dummy_variables(df, dummy_cols, other_dummy_cols):
+    missing_dummy_variables = set(other_dummy_cols).difference(set(dummy_cols))
+
+    for missing_dummy_variable in missing_dummy_variables:
+        df[missing_dummy_variable] = 0
+
+    return df
+
+
+def sync_features(
+        df1: pd.DataFrame, df2: pd.DataFrame, dummy_cols_df1: List[str], dummy_cols_df2: List[str]
+) -> Tuple[pd.DataFrame, pd.DataFrame, Set[str]]:
+    df1 = complete_dummy_variables(df1, dummy_cols_df1, dummy_cols_df2)
+    df2 = complete_dummy_variables(df2, dummy_cols_df2, dummy_cols_df1)
+
+    dummy_variables = set(dummy_cols_df1) | (set(dummy_cols_df2))
+
+    feature_intersection = list(set(df1) & set(df2))
+    df1 = df1[feature_intersection]
+    df2 = df2[feature_intersection]
+
+    return df1, df2, dummy_variables
+
+
+def preprocess_data(df1: pd.DataFrame, df2: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Preprocesses the datasets through a series of data cleaning, feature engineering,
+    encoding, and scaling steps.
+
+    Both datasets will be aligned for the same feature space.
+
+    :param df1: First raw input dataset to be preprocessed.
+    :param df2: Second raw input dataset to be preprocessed.
+    :returns: - First preprocessed dataset.
+              - Second preprocessed dataset.
+    """
+    meta = load_meta_data(raw_file_path="../data/meta/dias_values.xlsx")
+    meta = rectify_meta_attributes(meta)
+
+    with open("feature_config.json", "r") as f:
+        feature_config = json.load(f)
+
+    df1 = clean_data(df1, meta, feature_config)
+    df2 = clean_data(df2, meta, feature_config)
+
+    df1, dummy_variables_df1 = encode_data(df1, feature_config)
+    df2, dummy_variables_df2 = encode_data(df2, feature_config)
+
+    df1, df2, dummy_variables = sync_features(df1, df2, dummy_variables_df1, dummy_variables_df2)
+
+    non_numeric_features = set(dummy_variables) | set(feature_config["binary"])
+    numeric_features = [feature for feature in df1.columns if feature not in non_numeric_features]
+    df1, scaler = scale_numeric_features(df1, numeric_features)
+    df2, _ = scale_numeric_features(df2, numeric_features, scaler)
+
+    return df1, df2
+
+
+if __name__=="__main__":
+    customer = pd.read_csv("../data/Udacity_CUSTOMERS_052018.csv", sep=";", nrows=10000)
+    customer.columns = customer.columns.str.lower()
+    customer = customer.drop(columns=["customer_group", "online_purchase", "product_group"])
+
+    population = pd.read_csv("../data/Udacity_AZDIAS_052018.csv", sep=";", nrows=10000)
+    population.columns = population.columns.str.lower()
+
+    population, customer = preprocess_data(population, customer)
