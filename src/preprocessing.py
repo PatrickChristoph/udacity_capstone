@@ -136,20 +136,20 @@ def convert_invalid_values_to_null(df: pd.DataFrame, meta: pd.DataFrame) -> pd.D
     return df
 
 
-def remove_records_with_insufficient_data(df: pd.DataFrame, max_missing_values: int = 120) -> pd.DataFrame:
+def remove_records_with_insufficient_data(df: pd.DataFrame, max_ratio: float = .33) -> pd.DataFrame:
     """
     Remove records with too many missing feature values.
 
-    Rows with missing value counts greater than or equal to the specified threshold are dropped.
+    Rows with missing value ratio greater than or equal to the specified threshold are dropped.
 
     :param df: Dataset with records that have too many missing values.
-    :param max_missing_values: Maximum allowed number of missing values per record.
+    :param max_ratio: Maximum allowed ratio of missing values per record.
     :return: Dataset without rows that have too many missing feature values.
     """
-    insufficient_records = df.isnull().sum(axis=1) >= max_missing_values
+    insufficient_records = df.isnull().sum(axis=1) / len(df.columns) >= max_ratio
     df = df[~insufficient_records]
 
-    print(f"Removed {sum(insufficient_records)} records with over {max_missing_values} missing feature values.")
+    print(f"Removed {sum(insufficient_records)} records with over {max_ratio * 100}% missing feature values.")
 
     return df
 
@@ -168,7 +168,7 @@ def remove_features_with_high_missing_values_ratio(df: pd.DataFrame, max_ratio: 
     columns_with_high_ratio = list(missing_ratios[missing_ratios >= max_ratio].index)
 
     df = df.drop(columns=columns_with_high_ratio)
-    print(f"Removed {len(columns_with_high_ratio)} features with over {max_ratio * 100}% missing features:"
+    print(f"Removed {len(columns_with_high_ratio)} features with over {max_ratio * 100}% missing values:"
           f"\n{", ".join(columns_with_high_ratio)}")
 
     return df
@@ -383,6 +383,15 @@ def scale_numeric_features(
 def clean_data(
         df: pd.DataFrame, meta: pd.DataFrame, feature_config: Dict[str, List[str]], df_name: str
 ) -> pd.DataFrame:
+    """
+    Clean the dataset by removing unnecessary columns, handling missing data and extracting new features.
+
+    :param df: Dataset with uncleaned data attributes.
+    :param meta: Metadata to handle null values.
+    :param feature_config: Config for specific feature handling.
+    :param df_name: Name of the dataset for logging.
+    :return: Cleaned dataset.
+    """
     print(f"\nStart cleaning {df_name} dataset...")
 
     df = remove_features(df, feature_config, ["irrelevant"])
@@ -404,6 +413,15 @@ def clean_data(
 def encode_data(
         df: pd.DataFrame, feature_config: Dict[str, List[str]], df_name: str
 ) -> Tuple[pd.DataFrame, List[str]]:
+    """
+    Encode categorical features by converting binary variables to 0/1 and using one-hot encoding
+    for features with multiple categories.
+
+    :param df: Dataset containing categorical features.
+    :param feature_config: Config to identify categorical features.
+    :param df_name: Name of the dataset for logging.
+    :return: Dataset with encoded categorical features.
+    """
     print(f"\nStart encoding {df_name} dataset...")
 
     df = encode_binary_features(df, feature_config["binary"])
@@ -412,7 +430,16 @@ def encode_data(
     return df, dummy_variables
 
 
-def complete_dummy_variables(df, dummy_cols, other_dummy_cols):
+def complete_dummy_variables(df: pd.DataFrame, dummy_cols: List[str], other_dummy_cols: List[str]) -> pd.DataFrame:
+    """
+    Add dummy variables to the dataset that are completely set to 0 if the dummy variable is only present
+    in the other dataset.
+
+    :param df: Dataset possibly with missing dummy variables.
+    :param dummy_cols: Dummy variables in the dataset.
+    :param other_dummy_cols: Dummy variables of the other dataset.
+    :return: Dataset with completed dummy variables.
+    """
     missing_dummy_variables = set(other_dummy_cols).difference(set(dummy_cols))
 
     for missing_dummy_variable in missing_dummy_variables:
@@ -424,14 +451,25 @@ def complete_dummy_variables(df, dummy_cols, other_dummy_cols):
 def align_features(
         df1: pd.DataFrame, df2: pd.DataFrame, dummy_cols_df1: List[str], dummy_cols_df2: List[str]
 ) -> Tuple[pd.DataFrame, pd.DataFrame, Set[str]]:
+    """
+    Align features to ensure that the exact same features are present in the same order in both datasets.
+
+    :param df1: First dataset.
+    :param df2: Second dataset.
+    :param dummy_cols_df1: Dummy variables in the first dataset.
+    :param dummy_cols_df2: Dummy variables in the second dataset.
+    :return: - First dataset with aligned features.
+             - Second dataset with aligned features.
+             - Unique Dummy variables unified from both datasets.
+    """
     df1 = complete_dummy_variables(df1, dummy_cols_df1, dummy_cols_df2)
     df2 = complete_dummy_variables(df2, dummy_cols_df2, dummy_cols_df1)
 
-    print("\nAligned categorial features after one-hot encoding.")
+    print("\nAligned categorical features after one-hot encoding.")
 
     dummy_variables = set(dummy_cols_df1) | (set(dummy_cols_df2))
 
-    feature_intersection = list(set(df1) & set(df2))
+    feature_intersection = sorted(list(set(df1) & set(df2)))
     df1 = df1[feature_intersection]
     df2 = df2[feature_intersection]
 
