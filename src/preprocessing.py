@@ -71,7 +71,7 @@ def convert_unknown_values_to_null(df: pd.DataFrame, meta: pd.DataFrame) -> pd.D
         if attribute in df:
             df[attribute] = df[attribute].replace(float(unknown_value), np.nan)
 
-    print(f"Converted {len(unknown_values) + 3} unknown values to null.")
+    print(f"Converted {len(unknown_values)} unknown values from the meta information to null in the dataset.")
 
     return df
 
@@ -131,7 +131,7 @@ def convert_invalid_values_to_null(df: pd.DataFrame, meta: pd.DataFrame) -> pd.D
         if attribute in df:
             df[attribute] = df[attribute].replace(invalid_oor_value, np.nan)
 
-    print(f"Converted {len(invalid_oor_values) + 2} invalid values to null.")
+    print(f"Converted {len(invalid_oor_values) + 2} invalid values to null in the dataset.")
 
     return df
 
