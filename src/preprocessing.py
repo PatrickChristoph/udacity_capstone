@@ -287,8 +287,9 @@ def remove_features(df: pd.DataFrame, feature_configs: Dict[str, List[str]], rem
     """
     for removal_type in removal_types:
         features = feature_configs[removal_type]
-        df = df.drop(columns=features)
-        print(f"Removed {len(features)} {removal_type} features.")
+        removable_features = [feature for feature in features if feature in df]
+        df = df.drop(columns=removable_features)
+        print(f"Removed {len(removable_features)} {removal_type} features.")
 
     return df
 
