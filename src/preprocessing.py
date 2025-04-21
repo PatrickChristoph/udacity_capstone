@@ -479,7 +479,9 @@ def align_features(
     return df1, df2, dummy_variables
 
 
-def preprocess_data(df1: pd.DataFrame, df2: pd.DataFrame, names: Tuple[str, str]) -> Tuple[pd.DataFrame, pd.DataFrame]:
+def preprocess_data(
+        df1: pd.DataFrame, df2: pd.DataFrame, names: Tuple[str, str]
+) -> Tuple[pd.DataFrame, pd.DataFrame, StandardScaler]:
     """
     Preprocesses the datasets through a series of data cleaning, feature engineering,
     encoding, and scaling steps.
@@ -491,6 +493,7 @@ def preprocess_data(df1: pd.DataFrame, df2: pd.DataFrame, names: Tuple[str, str]
     :param names: Names of the datasets for logging.
     :returns: - First preprocessed dataset.
               - Second preprocessed dataset.
+              - Fitted StandardScaler used for feature scaling.
     """
     meta = load_meta_data(raw_file_path="../data/meta/dias_values.xlsx")
     meta = rectify_meta_attributes(meta)
@@ -515,7 +518,7 @@ def preprocess_data(df1: pd.DataFrame, df2: pd.DataFrame, names: Tuple[str, str]
 
     print(f"Finish preprocessing for both datasets.")
 
-    return df1, df2
+    return df1, df2, scaler
 
 
 if __name__=="__main__":

@@ -1,3 +1,7 @@
+import warnings
+from typing import Tuple
+
+import pandas as pd
 import requests
 import tarfile
 import os
@@ -48,3 +52,23 @@ def download_and_extract_raw_datasets():
             print("Downloaded tar.gz file removed.")
     else:
         print("Raw Datasets already exists.")
+
+
+def load_raw_population_datasets() -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Loads the raw population datasets.
+
+    :return: - general population dataset
+             - customer dataset
+    """
+    warnings.simplefilter(action="ignore", category=pd.errors.DtypeWarning)
+
+    population = pd.read_csv("../data/Udacity_AZDIAS_052018.csv", sep=";")
+    population.columns = population.columns.str.lower()
+
+    customer = pd.read_csv("../data/Udacity_CUSTOMERS_052018.csv", sep=";")
+    customer.columns = customer.columns.str.lower()
+
+    warnings.resetwarnings()
+
+    return population, customer
