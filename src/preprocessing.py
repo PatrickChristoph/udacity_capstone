@@ -450,7 +450,7 @@ def complete_dummy_variables(df: pd.DataFrame, dummy_cols: List[str], other_dumm
 
 
 def align_features(
-        df1: pd.DataFrame, df2: pd.DataFrame, dummy_cols_df1: List[str], dummy_cols_df2: List[str]
+        df1: pd.DataFrame, df2: pd.DataFrame, dummy_cols_df1: List[str] = None, dummy_cols_df2: List[str] = None
 ) -> Tuple[pd.DataFrame, pd.DataFrame, Set[str]]:
     """
     Align features to ensure that the exact same features are present in the same order in both datasets.
@@ -463,12 +463,15 @@ def align_features(
              - Second dataset with aligned features.
              - Unique Dummy variables unified from both datasets.
     """
-    df1 = complete_dummy_variables(df1, dummy_cols_df1, dummy_cols_df2)
-    df2 = complete_dummy_variables(df2, dummy_cols_df2, dummy_cols_df1)
+    dummy_variables = None
 
-    print("\nAligned categorical features after one-hot encoding.")
+    if dummy_cols_df1 is not None and dummy_cols_df2 is not None:
+        df1 = complete_dummy_variables(df1, dummy_cols_df1, dummy_cols_df2)
+        df2 = complete_dummy_variables(df2, dummy_cols_df2, dummy_cols_df1)
 
-    dummy_variables = set(dummy_cols_df1) | (set(dummy_cols_df2))
+        print("\nAligned categorical features after one-hot encoding.")
+
+        dummy_variables = set(dummy_cols_df1) | (set(dummy_cols_df2))
 
     feature_intersection = sorted(list(set(df1) & set(df2)))
     df1 = df1[feature_intersection]
@@ -480,8 +483,8 @@ def align_features(
 
 
 def preprocess_data(
-        df1: pd.DataFrame, df2: pd.DataFrame, names: Tuple[str, str]
-) -> Tuple[pd.DataFrame, pd.DataFrame, StandardScaler]:
+        df1: pd.DataFrame, df2: pd.DataFrame, names: Tuple[str, str], clean_only: bool = False
+) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     Preprocesses the datasets through a series of data cleaning, feature engineering,
     encoding, and scaling steps.
@@ -491,6 +494,7 @@ def preprocess_data(
     :param df1: First raw input dataset to be preprocessed.
     :param df2: Second raw input dataset to be preprocessed.
     :param names: Names of the datasets for logging.
+    :param clean_only: Set True if the datasets should not be encoded/scaled
     :returns: - First preprocessed dataset.
               - Second preprocessed dataset.
               - Fitted StandardScaler used for feature scaling.
@@ -505,6 +509,10 @@ def preprocess_data(
     df1 = clean_data(df1, meta, feature_config, names[0])
     df2 = clean_data(df2, meta, feature_config, names[1])
 
+    if clean_only:
+        df1, df2, _ = align_features(df1, df2)
+        return df1, df2
+
     df1, dummy_variables_df1 = encode_data(df1, feature_config, names[0])
     df2, dummy_variables_df2 = encode_data(df2, feature_config, names[1])
 
@@ -518,7 +526,7 @@ def preprocess_data(
 
     print(f"Finish preprocessing for both datasets.")
 
-    return df1, df2, scaler
+    return df1, df2
 
 
 if __name__=="__main__":
