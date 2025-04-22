@@ -70,5 +70,6 @@ def load_raw_population_datasets() -> Tuple[pd.DataFrame, pd.DataFrame]:
     customer.columns = customer.columns.str.lower()
 
     warnings.resetwarnings()
+    print("Population datasets loaded.")
 
     return population, customer
