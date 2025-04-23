@@ -21,7 +21,7 @@ def download_and_extract_raw_datasets():
     files_already_exists = True
 
     for file_name in raw_files:
-        if not os.path.isfile(f"../data/{file_name}"):
+        if not os.path.isfile(f"./data/{file_name}"):
             files_already_exists = False
             break
 
@@ -43,7 +43,7 @@ def download_and_extract_raw_datasets():
         print("Extracting the file...")
         try:
             with tarfile.open(filename, 'r:gz') as tar:
-                tar.extractall(path="..")
+                tar.extractall(path=".")
             print("Extraction completed.")
         except Exception as e:
             print(f"Failed to extract the file: {e}")
@@ -63,10 +63,10 @@ def load_raw_population_datasets() -> Tuple[pd.DataFrame, pd.DataFrame]:
     """
     warnings.simplefilter(action="ignore", category=pd.errors.DtypeWarning)
 
-    population = pd.read_csv("../data/Udacity_AZDIAS_052018.csv", sep=";")
+    population = pd.read_csv("./data/Udacity_AZDIAS_052018.csv", sep=";")
     population.columns = population.columns.str.lower()
 
-    customer = pd.read_csv("../data/Udacity_CUSTOMERS_052018.csv", sep=";")
+    customer = pd.read_csv("./data/Udacity_CUSTOMERS_052018.csv", sep=";")
     customer.columns = customer.columns.str.lower()
 
     warnings.resetwarnings()

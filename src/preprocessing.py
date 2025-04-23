@@ -499,10 +499,10 @@ def preprocess_data(
               - Second preprocessed dataset.
               - Fitted StandardScaler used for feature scaling.
     """
-    meta = load_meta_data(raw_file_path="../data/meta/dias_values.xlsx")
+    meta = load_meta_data(raw_file_path="./data/meta/dias_values.xlsx")
     meta = rectify_meta_attributes(meta)
 
-    with open("feature_config.json", "r") as f:
+    with open("./src/feature_config.json", "r") as f:
         feature_config = json.load(f)
     print("Feature config loaded.")
 
@@ -530,11 +530,11 @@ def preprocess_data(
 
 
 if __name__=="__main__":
-    customer = pd.read_csv("../data/Udacity_CUSTOMERS_052018.csv", sep=";", nrows=100000)
+    customer = pd.read_csv("./data/Udacity_CUSTOMERS_052018.csv", sep=";", nrows=100000)
     customer.columns = customer.columns.str.lower()
     customer = customer.drop(columns=["customer_group", "online_purchase", "product_group"])
 
-    population = pd.read_csv("../data/Udacity_AZDIAS_052018.csv", sep=";", nrows=100000)
+    population = pd.read_csv("./data/Udacity_AZDIAS_052018.csv", sep=";", nrows=100000)
     population.columns = population.columns.str.lower()
 
     population, customer = preprocess_data(population, customer, ("population", "customer"))
