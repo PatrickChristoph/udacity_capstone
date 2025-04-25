@@ -73,3 +73,24 @@ def load_raw_population_datasets() -> Tuple[pd.DataFrame, pd.DataFrame]:
     print("Population datasets loaded.")
 
     return population, customer
+
+
+def load_raw_mailout_datasets() -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Loads the raw mail-out datasets.
+
+    :return: - train mailout dataset
+             - test mailout dataset
+    """
+    warnings.simplefilter(action="ignore", category=pd.errors.DtypeWarning)
+
+    train = pd.read_csv("./data/Udacity_MAILOUT_052018_TRAIN.csv", sep=";")
+    train.columns = train.columns.str.lower()
+
+    test = pd.read_csv("./data/Udacity_MAILOUT_052018_TEST.csv", sep=";")
+    test.columns = test.columns.str.lower()
+
+    warnings.resetwarnings()
+    print("Mailout datasets loaded.")
+
+    return train, test
