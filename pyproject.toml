@@ -9,11 +9,11 @@ package-mode = false
 python = "^3.12"
 pandas = "^2.2.3"
 openpyxl = "^3.1.5"
-plotly = "^6.0.1"
 matplotlib = "^3.10.1"
 scikit-learn = "^1.6.1"
 seaborn = "^0.13.2"
 tqdm = "^4.67.1"
+xgboost = "^3.0.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
