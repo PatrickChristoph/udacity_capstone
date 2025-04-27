@@ -20,3 +20,35 @@ For customer prediction, ROC AUC are used as the evaluation metric, because it s
 - offers a comprehensive evaluation of model performance by assessing the trade-off between recall and false positive rate across different thresholds
 - maximizing recall (true positive rate) is essential to identify as many potential customers as possible
 - control false positive rate is also crucial to avoid spamming uninterested users and protect brand reputation
+
+
+# Section 2: Analysis
+
+## Data Exploration
+The initial phase involved exploring the demographic population datasets to identify data quality issues. Key findings include:
+
+- **Data Types:** The datasets contained numeric and string types. String types such as `cameo_deu_2015` or `ost_west_kz` should be treated as categorical variables. Moreover, some numeric attributes are not ordinal (no perceived order) and should be handled as a categorical feature too, e.g. `finanztyp` or `shopper_typ`.
+
+
+- **Unknown & Invalid Values:** Unknown and invalid values were identified based on the provided meta information and should be treated as missing data.
+
+
+- **Missing Data (Record-Level):** Around 12% of all data records have more than 120 missing attributes (so over one third of the features), which should be removed due to the lack of information.
+
+
+- **Missing Data (Feature-Level):** 14 attributes have a missing value ratio over 20% and should be completely dropped, because an uncertain imputation for that amount of data will possibly create too much bias. Some features like `ager_type` or `titel_kz` have a high missing ratio due to its logical nature and can be imputed purposeful. The remaining attributes have a max missing ratio of 7.5%, which can be kept in the dataset and impute the null values with its median for numeric types and mode for strings.
+
+
+- **Feature Extraction:** `praegende_jugendjahre` (formative youth years) and `cameo_intl_2015` (social typology) are both compositions of multiple information and should be separated into multiple features.
+
+
+- **Feature Correlation:** Various highly correlated features were identified such as `lp_status_fein` and `lp_status_grob`. Redundant features should be dropped to reduce dimensionality.
+
+
+- **General Population vs. Customer Dataset:**
+  - The customer dataset have 3 additional columns `customer_group`, `online_purchase` and `product_group`, which should be dropped to align the datasets.
+  - There is one value in `gebaeudetyp` (categorical feature), that is only in the population dataset and therefore creates the corresponding dummy column only in the population dataset.
+  - The share of records with more than one third of missing data is considerably higher in the customer dataset: 26.8% vs. 11.9%
+  - The share of records with nearly complete data instead is higher in the customer dataset, e.g. less than 10 missing features: 59.9% vs. 48.6%
+  - The customer data has a slightly lower share of features that contain more than 20% missing values: 2.8% vs. 5.5%
+  - The missing ratios per feature between both datasets are mostly quite close, because the correlation is with 0.94 very high.
