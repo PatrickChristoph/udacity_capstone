@@ -527,14 +527,3 @@ def preprocess_data(
     print(f"Finish preprocessing for both datasets.")
 
     return df1, df2
-
-
-if __name__=="__main__":
-    customer = pd.read_csv("./data/Udacity_CUSTOMERS_052018.csv", sep=";", nrows=100000)
-    customer.columns = customer.columns.str.lower()
-    customer = customer.drop(columns=["customer_group", "online_purchase", "product_group"])
-
-    population = pd.read_csv("./data/Udacity_AZDIAS_052018.csv", sep=";", nrows=100000)
-    population.columns = population.columns.str.lower()
-
-    population, customer = preprocess_data(population, customer, ("population", "customer"))
