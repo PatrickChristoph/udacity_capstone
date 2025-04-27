@@ -56,8 +56,20 @@ The initial phase involved exploring the demographic population datasets to iden
 ## Data Visualization
 Several visualizations were created to better understand the datasets:
 
-- **Missing Values Distribution:** Histograms were plotted to show the distribution of missing values per record in both population and customer datasets. This helped identify records with a significant amount of missing data.
+- **Missing Data (Record-Level):** The distribution of missing values per record in both population and customer datasets is helpful to observe the amount of missing data on the record-level and how the deviate compared to the other dataset.
+  <br><br>
+  Population Dataset:
+  ![missing_values_count_per_record_population.png](img/missing_values_count_per_record_population.png)
+  <br><br>
+  Customer Dataset:
+  ![missing_values_count_per_record_customer.png](img/missing_values_count_per_record_customer.png)
 
-- **Categorical Value Distributions:** Visualizations of categorical values in clusters compared to total data revealed specific customer traits, such as a higher proportion of male customers and a preference for 1-2 family houses.
 
-- **Principal Component Analysis (PCA):** PCA was used to reduce dimensionality, and the cumulative explained variance was plotted to show the variance captured by each principal component. This helped in understanding the data structure and preparing it for clustering.
+- **Missing Data (Feature-Level):** The missing values ratio per feature compared between both datasets shows, that they are quite similar for most of the features.
+  <br><br>
+  ![missing_values_ratio_per_feature.png](img/missing_values_ratio_per_feature.png)
+
+
+- **Feature Correlation:** The correlation matrix shows clearly the high correlations between some redundant features.
+  <br><br>
+  ![correlation_matrix.png](img/correlation_matrix.png)
