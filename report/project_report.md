@@ -52,3 +52,12 @@ The initial phase involved exploring the demographic population datasets to iden
   - The share of records with nearly complete data instead is higher in the customer dataset, e.g. less than 10 missing features: 59.9% vs. 48.6%
   - The customer data has a slightly lower share of features that contain more than 20% missing values: 2.8% vs. 5.5%
   - The missing ratios per feature between both datasets are mostly quite close, because the correlation is with 0.94 very high.
+
+## Data Visualization
+Several visualizations were created to better understand the datasets:
+
+- **Missing Values Distribution:** Histograms were plotted to show the distribution of missing values per record in both population and customer datasets. This helped identify records with a significant amount of missing data.
+
+- **Categorical Value Distributions:** Visualizations of categorical values in clusters compared to total data revealed specific customer traits, such as a higher proportion of male customers and a preference for 1-2 family houses.
+
+- **Principal Component Analysis (PCA):** PCA was used to reduce dimensionality, and the cumulative explained variance was plotted to show the variance captured by each principal component. This helped in understanding the data structure and preparing it for clustering.

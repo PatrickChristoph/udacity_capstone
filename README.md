@@ -32,7 +32,8 @@ This project uses Poetry for dependency management. The following dependencies a
 - **Openpyxl**: Reading and writing Excel files
 - **Optuna**: Hyperparameter optimization framework
 - **Pandas**: Data manipulation and analysis
-- **Scikit-learn**: Machine learning library for Python
+- **Scikit-learn**: Machine learning library
+- **Seaborn**: Visualization library based on Matplotlib
 - **TQDM**: Progress bar for loops
 - **XGBoost**: Optimized gradient boosting library
 
