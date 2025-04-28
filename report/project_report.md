@@ -153,9 +153,12 @@ After PCA was applied while retaining 90% of the explained variance, the silhoue
 ## Refinement
 
 ### Customer Segmentation
-- PCA with explained variance 0.3 = better silhouette score achieved (0.16) but still not good
-- remove d19 and kba features, which reduces the dimensionality a lot before PCA applied
-- best silhouette score results achieved with PCA and w/o d19 and kba (0.22)
+Reducing PCA explained variance to 0.3 resulted in a better silhouette score of 0.16, although the clustering quality remains suboptimal.
+
+The additional removal of the `d19` and `kba` features significantly reduced the dataset's dimensionality prior to applying PCA.
+That approach in combination with PCA delivered the best silhouette score results:
+
+![silhouette_score_best.png](img/silhouette_score_best.png)
 
 
 ### Customer Prediction
