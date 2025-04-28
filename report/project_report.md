@@ -109,3 +109,38 @@ Data preprocessing was a crucial step to ensure data quality and reliability for
 
 - **Scaling:** Numeric features will be standardized using the StandardScaler.
 
+
+## Implementation
+### Customer Segmentation
+- used k-means
+- elbow curve not clear
+- silhouette score bad (0.05)
+- PCA applied to reduce dimensionality, but with explained variance 0.9 still bad silhouette score (0.07)
+- Refinement necessary
+- Cluster Profile analyzed by
+  - Loadings of PCA Components with high cluster impact
+  - Original Values (cluster vs. population)
+
+
+## Refinement
+### Customer Segmentation
+- PCA with explained variance 0.3 = better silhouette score achieved (0.16) but still not good
+- remove d19 and kba features, which reduces the dimensionality a lot before PCA applied
+- best silhouette score results achieved with PCA and w/o d19 and kba (0.22)
+
+
+
+# Section 4: Results
+
+## Model Evaluation and Validation
+### Customer Segmentation
+- silhouette score quite low but sufficient
+- customer-heavy cluster clearly revealed
+- intersections between PCA Loading and Original Values
+
+
+## Justification
+- original values preferred over PCA Loadings if available
+- used both techniques to get a sense for the intersections and to substantiate the results
+- customer profile seems coherent (no contradictions)
+
