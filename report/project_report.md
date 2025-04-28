@@ -113,14 +113,32 @@ Data preprocessing was a crucial step to ensure data quality and reliability for
 ## Implementation
 
 ### Customer Segmentation
-- used k-means
-- elbow curve not clear
-- silhouette score bad (0.05)
-- PCA applied to reduce dimensionality, but with explained variance 0.9 still bad silhouette score (0.07)
-- Refinement necessary
-- Cluster Profile analyzed by
-  - Loadings of PCA Components with high cluster impact
-  - Original Values (cluster vs. population)
+
+**K-Means Clustering**
+
+K-Means were used for clustering, which partitions data into a predefined number of clusters by minimizing the distance between data points and their respective cluster centroids. 
+It iteratively updates the centroids and reassigns points until the clusters stabilize. 
+K-Means is a good choice for our customer segmentation because it is simple, efficient on large datasets, and often produces well-separated, interpretable clusters.
+
+**Optimal Number of Clusters**
+
+Since K-Means requires a predefined number of clusters, it is important to determine the optimal number for our dataset.
+Common techniques for this are the elbow method and the silhouette score. To apply these techniques, different numbers of clusters were tested first and collect the corresponding results.
+
+For the elbow method we have to plot the within-cluster sum of squares (WCSS or Inertia) against the number of clusters and identifying the "elbow point".
+Unfortunately, the elbow curve did not provide a definitive indication of the optimal number of clusters, suggesting potential issues with cluster separation.
+
+The silhouette score also was notably low at 0.05, indicating poor cluster cohesion and separation.
+
+**Principal Component Analysis**
+
+Principal Component Analysis (PCA) is a dimensionality reduction technique that transforms high-dimensional data into a lower-dimensional form while preserving as much variance as possible.
+
+PCA is essential for K-Means clustering, because it helps eliminate noise and irrelevant features that can mislead the clustering process. This is why PCA can improve the accuracy and stability of K-Means clustering results.
+
+The explained variance in PCA refers to the amount of the total variance in the data that is captured by each principal component. It indicates how much information from the original data is preserved by that component.
+
+After PCA was applied while retaining 90% of the explained variance, the silhouette score improved just marginally to 0.07. Therefore, further investigation was necessary, which are covered in the refinement section below.
 
 
 ### Customer Prediction
@@ -152,6 +170,9 @@ Data preprocessing was a crucial step to ensure data quality and reliability for
 ### Customer Segmentation
 - silhouette score quite low but sufficient
 - customer-heavy cluster clearly revealed
+- Cluster Profile analyzed by
+  - Loadings of PCA Components with high cluster impact
+  - Original Values (cluster vs. population)
 - intersections between PCA Loading and Original Values
 
 
