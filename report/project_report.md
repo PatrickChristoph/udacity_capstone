@@ -111,6 +111,7 @@ Data preprocessing was a crucial step to ensure data quality and reliability for
 
 
 ## Implementation
+
 ### Customer Segmentation
 - used k-means
 - elbow curve not clear
@@ -122,25 +123,53 @@ Data preprocessing was a crucial step to ensure data quality and reliability for
   - Original Values (cluster vs. population)
 
 
+### Customer Prediction
+- binary classification model
+- robust model for class imbalance
+- gradient boosting decision trees: xgboost with early stopping
+- training curves to evaluate over-/underfitting
+- find threshold by balancing trade-off between recall and FPR, but with domain-specific considerations
+- first used AUCPR, but ...
+
+
 ## Refinement
+
 ### Customer Segmentation
 - PCA with explained variance 0.3 = better silhouette score achieved (0.16) but still not good
 - remove d19 and kba features, which reduces the dimensionality a lot before PCA applied
 - best silhouette score results achieved with PCA and w/o d19 and kba (0.22)
 
 
+### Customer Prediction
+- Hyperparameter Tuning
+- scale_pos_weight adjustments
+
 
 # Section 4: Results
 
 ## Model Evaluation and Validation
+
 ### Customer Segmentation
 - silhouette score quite low but sufficient
 - customer-heavy cluster clearly revealed
 - intersections between PCA Loading and Original Values
 
 
+### Customer Prediction
+- no sign of over-/underfitting by evaluating logloss curves
+- early stopping AUC
+- AUC good, can appropriately distinguish between customers and non-customers
+
+
 ## Justification
+
+### Customer Segmentation
 - original values preferred over PCA Loadings if available
 - used both techniques to get a sense for the intersections and to substantiate the results
 - customer profile seems coherent (no contradictions)
 
+
+### Customer Prediction
+- slow "learning rate" is key
+- ROC curve discussion
+- Threshold determination
