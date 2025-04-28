@@ -114,13 +114,13 @@ Data preprocessing was a crucial step to ensure data quality and reliability for
 
 ### Customer Segmentation
 
-**K-Means Clustering**
+#### K-Means Clustering
 
 K-Means were used for clustering, which partitions data into a predefined number of clusters by minimizing the distance between data points and their respective cluster centroids. 
 It iteratively updates the centroids and reassigns points until the clusters stabilize. 
 K-Means is a good choice for our customer segmentation because it is simple, efficient on large datasets, and often produces well-separated, interpretable clusters.
 
-**Optimal Number of Clusters**
+#### Optimal Number of Clusters
 
 Since K-Means requires a predefined number of clusters, it is important to determine the optimal number for our dataset.
 Common techniques for this are the elbow method and the silhouette score. To apply these techniques, different numbers of clusters were tested first and collect the corresponding results.
@@ -134,7 +134,7 @@ The silhouette score also was notably low with 0.05 as the highest value for 2 c
 
 ![silhouette_score_first.png](img/silhouette_score_first.png)
 
-**Principal Component Analysis**
+#### Principal Component Analysis
 
 Principal Component Analysis (PCA) is a dimensionality reduction technique that transforms high-dimensional data into a lower-dimensional form while preserving as much variance as possible.
 
@@ -151,7 +151,9 @@ Therefore, further investigation was necessary, which are covered in the refinem
 
 ### Customer Prediction
 
-Our goal was to predict weather or not an individual will be a potential customer. This means that it is a binary classification task that needs to be solved.
+#### Model Selection
+
+The goal was to predict weather or not an individual will be a potential customer. This means that it is a binary classification task that needs to be solved.
 
 A possible algorithm approach are gradient boosting decision trees. They are highly effective and very successful in solving various machine learning problems.
 
@@ -163,17 +165,16 @@ Furthermore, XGBoost offers an early stopping method to stop the training when t
 Another popular gradient boosting framework is LightGBM. It also provides early stopping as well as a built-in handling for imbalanced classes. 
 One option is to use the `scale_pos_weight` parameter like with XGBoost. Another possibility is the `is_unbalanced` parameter.
 
+Although both frameworks using early stopping, it is crucial to assess overfitting and underfitting by using training curves, because it helps identify whether a model is learning the underlying patterns in the data or simply memorizing the training samples.
+
+#### Split Training Data
+
 To avoid data leakage and ensure an unbiased evaluation, a validation set for early stopping and hyperparameter tuning and a separate test set (data that the model has never seen before) for the final evaluation were used:
   - training set: for model training
   - validation set: for early stopping and hyperparameter tuning
   - test set: for final evaluation
 
 Due to the high class imbalance, it is essential to use a stratified sampling approach to make sure, that the rare customers in the data are equally distributed.
-
-
-- training curves to evaluate over-/underfitting
-- find threshold by balancing trade-off between recall and FPR, but with domain-specific considerations
-- first used AUCPR, but ...
 
 
 ## Refinement
@@ -186,9 +187,49 @@ That approach in combination with an explained variance of 0.5 (resulted in 7 pr
 
 
 ### Customer Prediction
-- Hyperparameter Tuning
-- scale_pos_weight adjustments
-- is_unbalanced
+
+#### Hyperparameter Tuning
+
+Hyperparameter tuning is essential for achieving the best possible model performance.
+One efficient way to tune the hyperparameters of the models is by using the Optuna framework. 
+Optuna mainly uses a method called Tree-structured Parzen Estimator (TPE) as its optimization strategy, which is a type of Bayesian optimization:
+- instead of trying random hyperparameters, Optuna models the probability distribution of good vs. bad hyperparameters
+- it learns over time which areas of the search space are promising and then focusing more on these regions
+
+The tuning process for the customer prediction models were controlled by setting:
+- the ranges for each XGBoost hyperparameter to be considered, e.g. the learning rate should be between 0.01 and 0.2
+- the metric and its direction for optimization (maximize ROC AUC)
+- the number of trials (100 trials were executed)
+
+These tuning scales were used:
+
+| Hyperparameter       | Range               | Log Scale |
+|----------------------|---------------------|-----------|
+| eta                  | 0.01 to 0.2         | Yes       |
+| max_depth            | 3 to 10             | No        |
+| min_child_weight     | 0.01 to 10          | Yes       |
+| subsample            | 0.5 to 1.0          | No        |
+| colsample_bytree     | 0.5 to 1.0          | No        |
+| gamma                | 0.0001 to 10        | Yes       |
+| lambda               | 0.0001 to 10        | Yes       |
+| alpha                | 0.0001 to 10        | Yes       |
+
+
+#### Class Imbalance
+
+A typical recommended value for the `scale_pos_weight` parameter is `sum(negative instances) / sum(positive instances)`.
+Different adjustments for this weight were tested, but for the XGBoost model this was the best setting.
+
+For the LightGBM model the `is_unbalanced` parameter leads to a slightly better AUC score instead of `scale_pos_weight`.
+
+#### Target Metric Confusion
+
+During the initial training sessions, the focus was on optimizing the AUCPR metric. However, achieving acceptable values proved to be nearly impossible. 
+
+After some reflection, it became clear that this approach made little sense and that AUCPR simply wasn’t the right metric for this case. 
+The response rate for email campaigns is inherently very low, which means concentrating on the precision metric was not particularly useful. It is low anyway.
+
+Instead, it’s much more effective to focus on the recall (how many potential customers we are reaching) while also ensuring that the false-positive rate remains low, meaning we should minimize the number of emails that end up with uninterested customers.
 
 
 # Section 4: Results
@@ -292,7 +333,11 @@ The Top20 values with the highest share compared to the average population revea
 Some of them were already uncovered in the previous analyses (higher social class, investors), but emphasized these insights.
 
 ### Customer Prediction
+
+- find threshold by balancing trade-off between recall and FPR, but with domain-specific considerations
+
 - no sign of over-/underfitting by evaluating logloss curves
+- Our model seems to be well-tuned, with no signs of significant overfitting or underfitting based on the log loss curves.
 - early stopping AUC
 - AUC good, can appropriately distinguish between customers and non-customers
 
