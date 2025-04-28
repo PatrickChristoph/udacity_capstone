@@ -188,7 +188,7 @@ This cluster (number 4) stands out with a proportion of 37% and is an appropriat
 ![customer_proportions_per_cluster.png](img/customer_proportions_per_cluster.png)
 
 
-#### Finding Cluster Traits Approach I: Principal Component Loadings
+#### Cluster Analysis I: Principal Component Loadings
 
 The cluster traits were examined by its principal components to get an idea of how the cluster is positioned along each principal component.
 Component #1 was clearly above the average, while component #3 was noticeably below.
@@ -227,7 +227,7 @@ The `semio` features dominate component #3, which describes different personal a
 - `semio_vert` - more dreamily
 
 
-#### Finding Cluster Traits Approach II: Original Data Values
+#### Cluster Analysis II: Original Data Values
 
 The original values of the customer-heavy cluster were also compared with the total population data to discover specific traits of that cluster.
 To interpret the values correctly, the original data was cleaned, but not scaled or encoded.
@@ -272,7 +272,20 @@ The Top20 values with the highest share compared to the average population revea
 
 Some of them were already uncovered in the previous analyses (higher social class, investors), but emphasized these insights.
 
-#### Customer Profile Summary
+### Customer Prediction
+- no sign of over-/underfitting by evaluating logloss curves
+- early stopping AUC
+- AUC good, can appropriately distinguish between customers and non-customers
+
+
+## Justification
+
+### Customer Segmentation
+
+It is generally better to analyze a cluster by the original data values to get clear, actionable insights.
+Principal component loadings are harder to explain, but it's still useful to check them because they show which features together shape the cluster.
+
+The revealed customer profile appears coherent, with no obvious contradictions, which is a good sign that the clustering results from the model are reliable.
 
 This could be the summerized cluster profile that describes the characteristics of the customers:
 
@@ -295,20 +308,6 @@ This could be the summerized cluster profile that describes the characteristics 
 <br><br>
 - Personal Affinities:
   - Mindset and Attitudes: The cluster is characterized by less dominant, critical and rational thinking. Instead, members display a more cultural, social and familial mindset with a tendency towards a less eventful orientation.
-
-
-### Customer Prediction
-- no sign of over-/underfitting by evaluating logloss curves
-- early stopping AUC
-- AUC good, can appropriately distinguish between customers and non-customers
-
-
-## Justification
-
-### Customer Segmentation
-- original values preferred over PCA Loadings if available
-- used both techniques to get a sense for the intersections and to substantiate the results
-- customer profile seems coherent (no contradictions)
 
 
 ### Customer Prediction
