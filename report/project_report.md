@@ -188,10 +188,20 @@ This cluster (number 4) stands out with a proportion of 37% and is an appropriat
 ![customer_proportions_per_cluster.png](img/customer_proportions_per_cluster.png)
 
 
-**Finding Cluster Traits Part I: Principal Components Approach**
+#### Finding Cluster Traits Approach I: Principal Component Loadings
 
 The cluster traits were examined by its principal components to get an idea of how the cluster is positioned along each principal component.
 Component #1 was clearly above the average, while component #3 was noticeably below.
+
+| Principal Component | Value   |
+|---------------------|---------|
+| Component #1        | 3.29    |
+| Component #2        | -0.30   |
+| Component #3        | -1.99   |
+| Component #4        | -0.01   |
+| Component #5        | -0.26   |
+| Component #6        | -0.16   |
+| Component #7        | 0.13    |
 
 Each principal component is a linear combination of the original variables. The loadings indicate how much each original variable contributes to each principal component. The sign of the loading (positive or negative) indicates the direction of the relationship.
 
@@ -205,14 +215,86 @@ The loadings of component #1 indicates relationships to these features:
 - `innenstadt` - higher distance to city center
 - `zabeotyp` - consume more smart and green energy
 
-This cluster of individuals could possibly be described as affluent, stable homeowners who live in rural or suburban areas. They exhibit higher social status through homeownership and top earnings, demonstrate a strong financial awareness, and prefer single-family homes. With lower mobility and greater distances from urban centers and points of sale, they value a quieter lifestyle. Additionally, they show a commitment to sustainability by consuming more smart and green energy, reflecting their environmentally conscious mindset.
+The `semio` features dominate component #3, which describes different personal affinities:
+- `semio_kaem` - less fightful attitude
+- `semio_dom` - less dominant minded
+- `semio_krit` - less critical minded
+- `semio_erl` - less eventful orientated
+- `semio_rat` - less rational minded
+- `semio_kult` - more cultural minded
+- `semio_soz` - more social minded
+- `semio_fam` - more familiar minded
+- `semio_vert` - more dreamily
 
 
+#### Finding Cluster Traits Approach II: Original Data Values
 
-- Cluster Profile analyzed by
-  - Loadings of PCA Components with high cluster impact
-  - Original Values (cluster vs. population)
-- intersections between PCA Loading and Original Values
+The original values of the customer-heavy cluster were also compared with the total population data to discover specific traits of that cluster.
+To interpret the values correctly, the original data was cleaned, but not scaled or encoded.
+
+**Numeric features** were evaluated by comparing the means for the customer-heavy cluster and total dataset.
+
+Some of the largest differences (relative deviation >30%) that were observed fits well to the findings of the analyzed principal components, but there are also some additional characteristics revealed:
+
+| Feature             | Compared to Average Population              | Cluster Average Value       |
+|---------------------|---------------------------------------------|-----------------------------|
+| anz_haushalte_aktiv | less households per building                | 1-2 households per building |
+| anz_kinder          | less children                               | 0.022                       |
+| anz_titel           | more individuals with academic title        | no academic title           |
+| cameo_deug_2015     | higher social status                        | established middleclass     |
+| finanz_anleger      | more financial investors                    | high to very high           |
+| finanz_minimalist   | higher financial interest                   | low interest = very low     |
+| finanz_hausbauer    | higher financial main focus on an own house | high focus                  |
+| hh_einkommen_score  | higher income                               | high income                 |
+| lp_status_fein      | higher social status                        | (new) houseowners           |
+| mobi_regio          | lower mobility                              | low mobility                |
+| plz8_antg3          | less 6-10 family houses                     | low share                   |
+| plz8_antg4          | less >10 family houses                      | none                        |
+| plz8_baumax         | more 1-2 family houses                      | mainly 1-2 family homes     |
+| semio_kaem          | less >10 family houses                      | none                        |
+| semio_vert          | lower dreamily affinity                     | very low affinity           |
+| zabeotyp            | smarter energy consumption                  | smart                       |
+
+An interesting observation is, that we saw an inverse relationship between a dreamy affinity and the principal component #3 before, but the analysis of the original values cleary show that that assumption was misleading.
+
+To assess the **categorical variables**, each categorical value was counted in the cluster as well as in the total dataset.
+
+The Top20 values with the highest share compared to the average population reveals some interesting customer traits:
+- `titel_kz` - higher share of academic titles
+- `cameo_deu_2015` - most of the upper class and upper middle class typologies are represented in the Top20 values with the highest share
+- `anrede_kz` - more male customers
+- `ager_typ` - more best-ager customers
+- `gebaeudetyp` - higher share of buildings without actually known households
+- `gfk_urlaubertyp` - more hiker and golden ager regarding the vacation habits
+- `finanztyp` - more money savers as well as investors
+- `shopping_type` - more individuals who seek pleasure and enjoyment from their shopping experiences
+- `alterskategorie_grob` - higher share of >60 years old
+
+Some of them were already uncovered in the previous analyses (higher social class, investors), but emphasized these insights.
+
+#### Customer Profile Summary
+
+This could be the summerized cluster profile that describes the characteristics of the customers:
+
+- Demographic Characteristics:
+  - Social Status: The cluster is predominantly composed of individuals with a higher social status, categorized as established middle class and upper class. A significant share of the population holds academic titles, indicating a well-educated demographic.
+  - Age Distribution: There is a notable presence of "best-ager" customers, with a higher concentration of individuals aged 60 and above.
+  - Gender Composition: The cluster has a higher proportion of male customers.
+<br><br>
+- Housing and Living Situation:
+  - Residential Characteristics: The cluster is characterized by a preference for 1-2 family houses, with a low share of multi-family housing. Many residents live in areas with fewer households per building, indicating a more spacious living environment.
+  - Mobility: Residents exhibit lower mobility, with a higher distance from Points of Sale and city centers, suggesting a more suburban lifestyle.
+<br><br>
+- Financial Behavior:
+  - Financial Interests: The cluster shows a strong inclination towards financial investments, with many individuals categorized as financial investors and money savers. There is a significant focus on home ownership, reflecting a preference for investing in personal property.
+  - Income Levels: The average income within this cluster is higher than the general population, indicating a financially stable group.
+<br><br>
+- Consumption Patterns:
+  - Energy Consumption: Customers in this segment are inclined towards smart and green energy solutions, reflecting a commitment to sustainability.
+  - Shopping Preferences: The cluster members derive pleasure and enjoyment from shopping experiences, indicating a preference for leisure-oriented purchasing behavior.
+<br><br>
+- Personal Affinities:
+  - Mindset and Attitudes: The cluster is characterized by less dominant, critical and rational thinking. Instead, members display a more cultural, social and familial mindset with a tendency towards a less eventful orientation.
 
 
 ### Customer Prediction
