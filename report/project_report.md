@@ -150,10 +150,27 @@ Therefore, further investigation was necessary, which are covered in the refinem
 
 
 ### Customer Prediction
-- binary classification model
-- robust model for class imbalance
-- stratified sampling due to class imbalance
-- gradient boosting decision trees: xgboost with early stopping
+
+Our goal was to predict weather or not an individual will be a potential customer. This means that it is a binary classification task that needs to be solved.
+
+A possible algorithm approach are gradient boosting decision trees. They are highly effective and very successful in solving various machine learning problems.
+
+An important aspect is the extreme **class imbalance** in the mailout dataset, that needs to be considered for the model development. Only about 1% of the data are customers.
+
+One good choice could be XGBoost, that can appropriately handle class imbalance with the `scale_pos_weigth` parameter.
+Furthermore, XGBoost offers an early stopping method to stop the training when the target metric do not increase anymore, which makes the training and tuning process more efficient.
+
+Another popular gradient boosting framework is LightGBM. It also provides early stopping as well as a built-in handling for imbalanced classes. 
+One option is to use the `scale_pos_weight` parameter like with XGBoost. Another possibility is the `is_unbalanced` parameter.
+
+To avoid data leakage and ensure an unbiased evaluation, a validation set for early stopping and hyperparameter tuning and a separate test set (data that the model has never seen before) for the final evaluation were used:
+  - training set: for model training
+  - validation set: for early stopping and hyperparameter tuning
+  - test set: for final evaluation
+
+Due to the high class imbalance, it is essential to use a stratified sampling approach to make sure, that the rare customers in the data are equally distributed.
+
+
 - training curves to evaluate over-/underfitting
 - find threshold by balancing trade-off between recall and FPR, but with domain-specific considerations
 - first used AUCPR, but ...
@@ -171,6 +188,7 @@ That approach in combination with an explained variance of 0.5 (resulted in 7 pr
 ### Customer Prediction
 - Hyperparameter Tuning
 - scale_pos_weight adjustments
+- is_unbalanced
 
 
 # Section 4: Results
@@ -183,7 +201,7 @@ This is still quite low, but could be sufficient for a basic customer segmentati
 
 ![silhouette_score_best.png](img/silhouette_score_best.png)
 
-We reached the highest scores for 2 and 8 clusters. For our customer segmentation we took the more granular clusters, where we identified a customer-heavy cluster. 
+We reached the highest scores for 2 and 8 clusters. For the customer segmentation the more granular clusters were taken, where a customer-heavy cluster was identified. 
 This cluster (number 4) stands out with a proportion of 37% and is an appropriate base to gain insights about the customer characteristics based on that cluster.
 
 ![customer_proportions_per_cluster.png](img/customer_proportions_per_cluster.png)
