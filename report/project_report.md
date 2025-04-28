@@ -152,6 +152,7 @@ Therefore, further investigation was necessary, which are covered in the refinem
 ### Customer Prediction
 - binary classification model
 - robust model for class imbalance
+- stratified sampling due to class imbalance
 - gradient boosting decision trees: xgboost with early stopping
 - training curves to evaluate over-/underfitting
 - find threshold by balancing trade-off between recall and FPR, but with domain-specific considerations

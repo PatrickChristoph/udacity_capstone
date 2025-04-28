@@ -28,6 +28,7 @@ Overall, the project seeks to leverage data-driven insights to support more effe
 This project uses Poetry for dependency management. The following dependencies are specified in the `pyproject.toml` file:
 
 - **Python**: Use 3.12 or higher
+- **LightGBM**: LightGBM (gradient boosting framework)
 - **Matplotlib**: Plotting library for creating visualizations
 - **Openpyxl**: Reading and writing Excel files
 - **Optuna**: Hyperparameter optimization framework
@@ -35,7 +36,7 @@ This project uses Poetry for dependency management. The following dependencies a
 - **Scikit-learn**: Machine learning library
 - **Seaborn**: Visualization library based on Matplotlib
 - **TQDM**: Progress bar for loops
-- **XGBoost**: Optimized gradient boosting library
+- **XGBoost**: XGBoost (gradient boosting framework)
 
 ## Installation
 To get started with this project, follow these steps:
