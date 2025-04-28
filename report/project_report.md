@@ -73,3 +73,39 @@ Several visualizations were created to better understand the datasets:
 - **Feature Correlation:** The correlation matrix shows clearly the high correlations between some redundant features.
   <br><br>
   ![correlation_matrix.png](img/correlation_matrix.png)
+
+
+# Section 3: Methodology
+
+## Data Preprocessing
+Data preprocessing was a crucial step to ensure data quality and reliability for subsequent analyses. The revealed data issues from the initial data exploration were handled properly. The preprocessing involved several tasks:
+
+- **Rectify Meta Attributes:** Attribute names in the metadata were aligned to match them with the demographic datasets.
+
+
+- **Convert Unknown & Invalid Values:** Values that are out of range or marked as unknown in the meta information were converted to actual null values.
+
+
+- **Remove Records / Features:** Records and features with too many missing values (records: > 33%, features: > 20%) were removed, due to the lack of information. 
+
+
+- **Impute Missing Values:** The remaining missing data were imputed using median for numeric features and mode for categorical features.
+
+
+- **Feature Engineering:** New features were extracted from existing ones (formative youth years and international social classifications)
+
+
+- **Remove Uncertain Features:** Some features in the datasets have no provided meta information and could not be classified by their name or their values. Therefore, it is unclear weather to handle them as numeric or categorical feature.
+
+
+- **Remove Redundant Features:** Highly correlated features were removed to reduce dimensionality.
+
+
+- **Encoding:** All features were screened and classified as numeric or categorical. One-Hot-Encoding were applied to categorical features. Binary features were also standardized to 0/1.
+
+
+- **Align Features:** Small deviations in the missing values between the population and customer dataset leads to different feature removals. Moreover, some categorical values are only in one of the datasets. Therefore, we have to ensure the same features in the same order for both datasets.
+
+
+- **Scaling:** Numeric features will be standardized using the StandardScaler.
+
