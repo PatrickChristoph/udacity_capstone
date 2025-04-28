@@ -128,7 +128,11 @@ Common techniques for this are the elbow method and the silhouette score. To app
 For the elbow method we have to plot the within-cluster sum of squares (WCSS or Inertia) against the number of clusters and identifying the "elbow point".
 Unfortunately, the elbow curve did not provide a definitive indication of the optimal number of clusters, suggesting potential issues with cluster separation.
 
-The silhouette score also was notably low at 0.05, indicating poor cluster cohesion and separation.
+![elbow_curve_first.png](img/elbow_curve_first.png)
+
+The silhouette score also was notably low with 0.05 as the highest value for 2 clusters, indicating poor cluster cohesion and separation.
+
+![silhouette_score_first.png](img/silhouette_score_first.png)
 
 **Principal Component Analysis**
 
@@ -138,7 +142,11 @@ PCA is essential for K-Means clustering, because it helps eliminate noise and ir
 
 The explained variance in PCA refers to the amount of the total variance in the data that is captured by each principal component. It indicates how much information from the original data is preserved by that component.
 
-After PCA was applied while retaining 90% of the explained variance, the silhouette score improved just marginally to 0.07. Therefore, further investigation was necessary, which are covered in the refinement section below.
+![cumulative_explained_variance_first.png](img/cumulative_explained_variance_first.png)
+
+After PCA was applied while retaining 90% of the explained variance (resulting in 156 principal components), the silhouette score improved just marginally to 0.07. 
+
+Therefore, further investigation was necessary, which are covered in the refinement section below.
 
 
 ### Customer Prediction
@@ -156,9 +164,7 @@ After PCA was applied while retaining 90% of the explained variance, the silhoue
 Reducing PCA explained variance to 0.3 resulted in a better silhouette score of 0.16, although the clustering quality remains suboptimal.
 
 The additional removal of the `d19` and `kba` features significantly reduced the dataset's dimensionality prior to applying PCA.
-That approach in combination with PCA delivered the best silhouette score results:
-
-![silhouette_score_best.png](img/silhouette_score_best.png)
+That approach in combination with an explained variance of 0.5 (resulted in 7 principal components) delivered the best silhouette score results. This will be discussed further in the model evaluation in section 4.
 
 
 ### Customer Prediction
@@ -171,8 +177,38 @@ That approach in combination with PCA delivered the best silhouette score result
 ## Model Evaluation and Validation
 
 ### Customer Segmentation
-- silhouette score quite low but sufficient
-- customer-heavy cluster clearly revealed
+After the refinement of the explained variance and further dimensionality reduction, we achieved a silhouette score of over 0.21 after all. 
+This is still quite low, but could be sufficient for a basic customer segmentation.
+
+![silhouette_score_best.png](img/silhouette_score_best.png)
+
+We reached the highest scores for 2 and 8 clusters. For our customer segmentation we took the more granular clusters, where we identified a customer-heavy cluster. 
+This cluster (number 4) stands out with a proportion of 37% and is an appropriate base to gain insights about the customer characteristics based on that cluster.
+
+![customer_proportions_per_cluster.png](img/customer_proportions_per_cluster.png)
+
+
+**Finding Cluster Traits Part I: Principal Components Approach**
+
+The cluster traits were examined by its principal components to get an idea of how the cluster is positioned along each principal component.
+Component #1 was clearly above the average, while component #3 was noticeably below.
+
+Each principal component is a linear combination of the original variables. The loadings indicate how much each original variable contributes to each principal component. The sign of the loading (positive or negative) indicates the direction of the relationship.
+
+The loadings of component #1 indicates relationships to these features:
+- `lp_status_fein` - higher social status
+- `finanz_minimalist` - higher financial interest
+- `mobi_regio` - lower mobility
+- `plz8_antg1` - higher share of 1-2 family houses
+- `plz8_antg2` - less share of 3-5 family houses
+- `konsumnaehe` - higher distance from building to Point of Sale
+- `innenstadt` - higher distance to city center
+- `zabeotyp` - consume more smart and green energy
+
+This cluster of individuals could possibly be described as affluent, stable homeowners who live in rural or suburban areas. They exhibit higher social status through homeownership and top earnings, demonstrate a strong financial awareness, and prefer single-family homes. With lower mobility and greater distances from urban centers and points of sale, they value a quieter lifestyle. Additionally, they show a commitment to sustainability by consuming more smart and green energy, reflecting their environmentally conscious mindset.
+
+
+
 - Cluster Profile analyzed by
   - Loadings of PCA Components with high cluster impact
   - Original Values (cluster vs. population)
