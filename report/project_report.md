@@ -347,7 +347,40 @@ Some of them were already uncovered in the previous analyses (higher social clas
 ### Customer Prediction
 
 #### Best Hyperparameters
-...
+These hyperparameter settings achieved the highest AUC score for the models:
+
+| XGBoost Hyperparameter | Value                            |
+|------------------------|----------------------------------|
+| eta                    | 0.0345                           |
+| max_depth              | 4                                |
+| min_child_weight       | 0.9146                           |
+| subsample              | 0.596                            |
+| colsample_bytree       | 0.7637                           |
+| gamma                  | 0.1327                           |
+| lambda                 | 0.4347                           |
+| alpha                  | 0.0012                           |
+
+In the XGB model, the learning rate (`eta`) of 0.03 allows for a gradual learning process.
+The `max depth` of 4 indicates a relatively deeper tree, allowing the model to capture more complex interactions in the data.
+A `min_child_weight` of 0.91 suggests that the model is less sensitive to overfitting, as it requires fewer instances in a leaf node before making a split.
+The regularization parameters, with `lambda` at 0.43 and `alpha` at 0.001, imply a moderate level of regularization to control overfitting while still allowing the model to learn important features from the data.
+
+| LightGBM Hyperparameter | Value                            |
+|-------------------------|----------------------------------|
+| learning_rate           | 0.0189                           |
+| num_leaves              | 134                              |
+| max_depth               | 1                                |
+| min_child_weight        | 3.516                            |
+| lambda_l2               | 3.792                            |
+| lambda_l1               | 0.0002                           |
+| feature_fraction        | 0.5507                           |
+| bagging_fraction        | 0.7085                           |
+
+The LGBM model has a `learning rate` of 0.02, indicating a moderate pace of learning, which helps in achieving a balance between convergence speed and overfitting.
+The model uses 134 leaves (`num leaves`), suggesting a complex tree structure that can capture intricate patterns in the data.
+With a `max depth` of 1, this indicates a shallow tree, which may be a result of using a high number of leaves to prevent overfitting while still allowing for flexibility in learning.
+The `min_child_weight` of 3.5 suggests that the model requires a minimum sum of instance weight in a child node to prevent overfitting, 
+while the regularization parameters (`lambda_l2` and `lambda_l1`) help control complexity.
 
 #### Training Curves
 Although both frameworks using early stopping, it is crucial to assess overfitting and underfitting by using training curves, 
@@ -356,7 +389,6 @@ because it helps identify whether a model is learning the underlying patterns in
 The XGBoost model seems to be well-tuned, with no signs of significant overfitting or underfitting based on the log loss curves:
 
 ![logloss_curve_xgb.png](img/logloss_curve_xgb.png)
-
 
 
 
