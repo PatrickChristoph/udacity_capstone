@@ -15,7 +15,7 @@ The primary problem to solve is to identify and predict potential customers for 
 ### Customer Segmentation
 For customer segmentation, silhouette scores are used to measure the quality of clusters. Silhouette scores measure how similar a point is to its own cluster compared to other clusters, balancing both cohesion and separation. A high average silhouette score indicates well-defined, distinct clusters, making it a reliable diagnostic when ground truth labels are unavailable.
 
-### Customer Prediction Model
+### Customer Prediction
 For customer prediction, ROC AUC are used as the evaluation metric, because it seems to be the best fit for the business problem:
 - offers a comprehensive evaluation of model performance by assessing the trade-off between recall and false positive rate across different thresholds
 - maximizing recall (true positive rate) is essential to identify as many potential customers as possible
@@ -118,11 +118,11 @@ Data preprocessing was a crucial step to ensure data quality and reliability for
 
 K-Means were used for clustering, which partitions data into a predefined number of clusters by minimizing the distance between data points and their respective cluster centroids. 
 It iteratively updates the centroids and reassigns points until the clusters stabilize. 
-K-Means is a good choice for our customer segmentation because it is simple, efficient on large datasets, and often produces well-separated, interpretable clusters.
+K-Means is a good choice for the customer segmentation because it is simple, efficient on large datasets, and often produces well-separated, interpretable clusters.
 
 #### Optimal Number of Clusters
 
-Since K-Means requires a predefined number of clusters, it is important to determine the optimal number for our dataset.
+Since K-Means requires a predefined number of clusters, it is important to determine the optimal number for the dataset.
 Common techniques for this are the elbow method and the silhouette score. To apply these techniques, different numbers of clusters were tested first and collect the corresponding results.
 
 For the elbow method we have to plot the within-cluster sum of squares (WCSS or Inertia) against the number of clusters and identifying the "elbow point".
@@ -436,7 +436,7 @@ This could be the summerized cluster profile that describes the characteristics 
 
 ### Customer Prediction
 
-The ROC curves provide several insights about the performance of our models:
+The ROC curves provide several insights about the performance of the models:
 - the curve plots the true positive rate (TPR) against the false positive rate (FPR)
   - a higher TPR indicates that the model is effectively identifying the customers (positive cases)
   - a lower FPR indicates that it is not incorrectly labeling too many negative cases as positive (sending mails to uninterested people)
@@ -445,12 +445,12 @@ The ROC curves provide several insights about the performance of our models:
 - the ROC curve rises steeply in the lower left corner, which is favorable, as it indicates that the models achieve a high true positive rate (identify many potential customers) with a low false positive rate (sending unnecessary mails) at lower thresholds
 - the relatively gradual slope in the mid-range suggests that the "spam rate" significantly increases while only a limited number of additional customers are being identified
 
-A possibly good trade-off for our XGBoost model would be at around 0.86 TPR and 0.30 FPR, which means that 86% of the potential customers were identified while avoiding 70% of unnecessary "spam" mails.
+A possibly good trade-off for the XGBoost model would be at around 0.86 TPR and 0.30 FPR, which means that 86% of the potential customers were identified while avoiding 70% of unnecessary "spam" mails.
 
 ![roc_curves.png](img/roc_curves.png)
 
 The threshold on the predicted probabilities for the suggestest trade-off above would be around `0.37`.
-This means that any predicted probability value of our model over the threshold value will be classified as a potential customer.
+This means that any predicted probability value of the model over the threshold value will be classified as a potential customer.
 
 ![tpr_fpr_thresholds_xgb.png](img/tpr_fpr_thresholds_xgb.png)
 
