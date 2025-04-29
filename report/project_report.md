@@ -390,6 +390,17 @@ The XGBoost model seems to be well-tuned, with no signs of significant overfitti
 
 ![logloss_curve_xgb.png](img/logloss_curve_xgb.png)
 
+The number of trees appears also valid with the highest AUC score for the validation set at the end:
+![auc_curve_xgb.png](img/auc_curve_xgb.png)
+
+The LightGBM model struggles first with class imbalance while using the built-in parameters to handle it. The result was a steadily increasing logloss curve:
+
+![binary_logloss_curve_lgb_first.png](img/binary_logloss_curve_lgb_first.png)
+
+With the use of SMOTE the model performance improves considerably and the loss curve looks appropriate without a noticeable over- or underfitting:
+
+![binary_logloss_curve_lgb_best.png](img/binary_logloss_curve_lgb_best.png)
+
 
 
 #### ROC AUC Metric
