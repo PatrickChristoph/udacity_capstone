@@ -199,7 +199,7 @@ The tuning process for the customer prediction models were controlled by setting
 - the metric and its direction for optimization (maximize ROC AUC)
 - the number of trials (100 trials were executed)
 
-These tuning scales were used:
+These tuning scales were used for the XGBoost model:
 
 | Hyperparameter       | Range               | Log Scale |
 |----------------------|---------------------|-----------|
@@ -213,12 +213,26 @@ These tuning scales were used:
 | alpha                | 0.0001 to 10        | Yes       |
 
 
+And for LightGBM:
+
+| Hyperparameter       | Range               | Log Scale |
+|----------------------|---------------------|-----------|
+| learning_rate        | 0.001 to 0.02       | Yes       |
+| num_leaves           | 20 to 300           | No        |
+| max_depth            | -1 to 10            | No        |
+| min_child_weight     | 0.01 to 10          | Yes       |
+| lambda_l2            | 0.0001 to 10        | Yes       |
+| lambda_l1            | 0.0001 to 10        | Yes       |
+| feature_fraction      | 0.5 to 1.0          | No        |
+| bagging_fraction      | 0.5 to 1.0          | No        |
+
 #### Class Imbalance
 
 A typical recommended value for the `scale_pos_weight` parameter is `sum(negative instances) / sum(positive instances)`.
 Different adjustments for this weight were tested, but for the XGBoost model this was the best setting.
 
-For the LightGBM model the `is_unbalanced` parameter leads to a slightly better AUC score instead of `scale_pos_weight`.
+For the LightGBM model neither the `is_unbalanced` nor the `scale_pos_weight` parameter leads to suitable results.
+Instead, we used the SMOTE library at the end to upsample the minority class in the training data, which works much better.
 
 #### Target Metric Confusion
 
@@ -331,6 +345,9 @@ The Top20 values with the highest share compared to the average population revea
 Some of them were already uncovered in the previous analyses (higher social class, investors), but emphasized these insights.
 
 ### Customer Prediction
+
+#### Best Hyperparameters
+...
 
 #### Training Curves
 Although both frameworks using early stopping, it is crucial to assess overfitting and underfitting by using training curves, 

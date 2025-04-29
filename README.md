@@ -28,6 +28,7 @@ Overall, the project seeks to leverage data-driven insights to support more effe
 This project uses Poetry for dependency management. The following dependencies are specified in the `pyproject.toml` file:
 
 - **Python**: Use 3.12 or higher
+- **Imblearn**: Handles imbalanced Data
 - **LightGBM**: LightGBM (gradient boosting framework)
 - **Matplotlib**: Plotting library for creating visualizations
 - **Openpyxl**: Reading and writing Excel files
