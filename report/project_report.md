@@ -165,8 +165,6 @@ Furthermore, XGBoost offers an early stopping method to stop the training when t
 Another popular gradient boosting framework is LightGBM. It also provides early stopping as well as a built-in handling for imbalanced classes. 
 One option is to use the `scale_pos_weight` parameter like with XGBoost. Another possibility is the `is_unbalanced` parameter.
 
-Although both frameworks using early stopping, it is crucial to assess overfitting and underfitting by using training curves, because it helps identify whether a model is learning the underlying patterns in the data or simply memorizing the training samples.
-
 #### Split Training Data
 
 To avoid data leakage and ensure an unbiased evaluation, a validation set for early stopping and hyperparameter tuning and a separate test set (data that the model has never seen before) for the final evaluation were used:
@@ -333,6 +331,22 @@ The Top20 values with the highest share compared to the average population revea
 Some of them were already uncovered in the previous analyses (higher social class, investors), but emphasized these insights.
 
 ### Customer Prediction
+
+#### Training Curves
+Although both frameworks using early stopping, it is crucial to assess overfitting and underfitting by using training curves, 
+because it helps identify whether a model is learning the underlying patterns in the data or simply memorizing the training samples.
+
+The XGBoost model seems to be well-tuned, with no signs of significant overfitting or underfitting based on the log loss curves:
+
+![logloss_curve_xgb.png](img/logloss_curve_xgb.png)
+
+
+
+
+#### ROC AUC Metric
+
+
+
 
 - find threshold by balancing trade-off between recall and FPR, but with domain-specific considerations
 
