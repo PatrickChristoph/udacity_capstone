@@ -402,20 +402,6 @@ With the use of SMOTE the model performance improves considerably and the loss c
 ![binary_logloss_curve_lgb_best.png](img/binary_logloss_curve_lgb_best.png)
 
 
-
-#### ROC AUC Metric
-
-
-
-
-- find threshold by balancing trade-off between recall and FPR, but with domain-specific considerations
-
-- no sign of over-/underfitting by evaluating logloss curves
-- Our model seems to be well-tuned, with no signs of significant overfitting or underfitting based on the log loss curves.
-- early stopping AUC
-- AUC good, can appropriately distinguish between customers and non-customers
-
-
 ## Justification
 
 ### Customer Segmentation
@@ -449,6 +435,24 @@ This could be the summerized cluster profile that describes the characteristics 
 
 
 ### Customer Prediction
-- slow "learning rate" is key
-- ROC curve discussion
-- Threshold determination
+
+The ROC curves provide several insights about the performance of our models:
+- the curve plots the true positive rate (TPR) against the false positive rate (FPR)
+  - a higher TPR indicates that the model is effectively identifying the customers (positive cases)
+  - a lower FPR indicates that it is not incorrectly labeling too many negative cases as positive (sending mails to uninterested people)
+- both models perform better than random guessing and have a good ability to distinguish between customers and non-customers
+- however, XGBoost shows a stronger ability with an AUC of 0.795 compared to LightGBM with 0.767
+- the ROC curve rises steeply in the lower left corner, which is favorable, as it indicates that the models achieve a high true positive rate (identify many potential customers) with a low false positive rate (sending unnecessary mails) at lower thresholds
+- the relatively gradual slope in the mid-range suggests that the "spam rate" significantly increases while only a limited number of additional customers are being identified
+
+A possibly good trade-off for our XGBoost model would be at around 0.86 TPR and 0.30 FPR, which means that 86% of the potential customers were identified while avoiding 70% of unnecessary "spam" mails.
+
+![roc_curves.png](img/roc_curves.png)
+
+The threshold on the predicted probabilities for the suggestest trade-off above would be around `0.37`.
+This means that any predicted probability value of our model over the threshold value will be classified as a potential customer.
+
+![tpr_fpr_thresholds_xgb.png](img/tpr_fpr_thresholds_xgb.png)
+
+
+# Section 5: Conclusion
