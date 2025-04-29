@@ -14,6 +14,9 @@ Overall, the project seeks to leverage data-driven insights to support more effe
 ## Project Structure
 - `data/`: Contains demographic datasets used for analysis and model trainings. (will be downloaded, not part of the repository)
   - `meta/`: Contains files with meta information about the provided demographic datasets.
+- `report/`: Contains the project report
+  - `img/`: Images used in the project report
+  - `project_report.md`: Document that provides a comprehensive overview of the project, detailing the objectives, methodologies, results and conclusions drawn from the analysis and model evaluations.
 - `src/`: Source code for data processing, model training and evaluation.
   - `customer_prediction.ipynb`: This notebook contains the implementation of the supervised model used for predicting customer responses to future mailout campaigns.
   - `customer_segmentation.ipynb`: This notebook focuses on applying unsupervised learning techniques to segment customers based on their traits and behaviors.
