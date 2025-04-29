@@ -195,7 +195,7 @@ Optuna mainly uses a method called Tree-structured Parzen Estimator (TPE) as its
 - it learns over time which areas of the search space are promising and then focusing more on these regions
 
 The tuning process for the customer prediction models were controlled by setting:
-- the ranges for each XGBoost hyperparameter to be considered, e.g. the learning rate should be between 0.01 and 0.2
+- the ranges for each hyperparameter to be considered, e.g. the learning rate should be between 0.01 and 0.2
 - the metric and its direction for optimization (maximize ROC AUC)
 - the number of trials (100 trials were executed)
 
@@ -456,3 +456,42 @@ This means that any predicted probability value of our model over the threshold 
 
 
 # Section 5: Conclusion
+
+## Reflection
+
+### Problem Solution
+**Data Exploration:**
+The project begins with a thorough exploration of the demographic datasets, identifying and rectifying data quality issues such as unknown values, missing data and irrelevant features. This phase ensures that the dataset is clean and reliable for further analysis.
+
+**Customer Segmentation:** 
+An unsupervised machine learning model (K-Means) is employed to classify customers into distinct segments based on their behaviors and characteristics. The optimal number of clusters is determined using techniques like the elbow method and silhouette scores, although challenges arise due to low cohesion and separation in the clusters.
+
+**Customer Prediction:** 
+Supervised learning models (XGBoost and LightGBM) are utilized to predict potential customers for future campaigns. The models are trained on a stratified dataset to handle the extreme class imbalance present in the data. Hyperparameter tuning is performed to optimize model performance, focusing on maximizing the ROC AUC metric.
+
+### Challenges
+
+**Data Quality Challenges**:
+One of the most challenging aspects of the project was addressing the data quality issues during the exploration phase. 
+With a significant portion of the data containing missing values and unknown entries, ensuring that the dataset was 
+clean and suitable for analysis required careful handling. This step was crucial for the integrity of the subsequent analyses.
+
+**Cluster Cohesion and Separation:** 
+Achieving meaningful customer segments through K-Means clustering proved difficult. The low silhouette scores indicated 
+that the clusters were not well-defined, prompting further refinement through dimensionality reduction techniques like PCA.
+This aspect highlighted the complexities involved in unsupervised learning, particularly in finding a balance between 
+reducing dimensionality and retaining valuable information for effective segmentation.
+
+**Class Imbalance Challenges:** A major challenge in the prediction phase was the class imbalance in the dataset, 
+with only about 1% of the data representing actual customers. This imbalance risked biasing the models towards the majority class of non-customers, 
+making it difficult to accurately identify potential customers. 
+To address this, techniques like SMOTE for oversampling the minority class and adjusting class weights were necessary, 
+
+
+## Improvement
+
+Some suggestions for future research to improve the solution could be:
+- Implement more extensive hyperparameter optimization strategies to further fine-tune model parameters
+- Using SHAP to better understand the influence of various features on predictions
+- Explore more sophisticated sampling methods to handle the class imbalance
+- Test other model types like Random Forest or SVMs for the customer prediction and DBSCAN or Hierarchical Clustering for the customer segmentation
